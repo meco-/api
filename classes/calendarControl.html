@@ -1,0 +1,48 @@
+<?php
+include ('../includes/dbTools.php');
+class calendarControl {
+    private $connection;
+    
+    function PersonCtrl()
+    {
+        $this->connection = new dbHandle();
+    }
+
+    function getCalendar($id)
+    {
+        $sql = "SELECT * FROM [cal_Calendars] WHERE calendarID=$id;";
+        $result = $this->connection->executequerry($sql)[0];
+        return new PersonModel($result['calendarID'],$result['calendarTitle'],$result['calendarDescription'],$result['calendarAdminID']);
+    }
+
+    function updateCalendar($calendar)
+    {
+        $sql = "UPDATE [cal_Calendars] SET userName='$calendar->userName',userLastName='$calendar->userLastName',userEmail='".htmlspecialchars($calendar->userEmail)."',calendarID = $calendar->calendarID, WHERE calendarID=$calendar->id;";
+        $this->connection->executequerry($sql);
+    }
+
+    function deleteCalendar($id)
+    {
+        $sql = "DELETE FROM [cal_Calendars] WHERE calendarID=$id;";
+        $this->connection->executequerry($sql);
+    }
+
+    function createCalendar($calendar)
+    {
+        $sql = "INSERT INTO [cal_Calendars] (calendarID,calendarTitle,calendarDescription, calendarAdminID, calendarGroupID) VALUES ('".htmlspecialchars($calendar->calendarTitle,ENT_QUOTES)."','".htmlspecialchars($calendar->calendarDescription,ENT_QUOTES)."','$calendar->calendarAdminID','$calendar->calendarGroupID');";
+        $this->connection->executequerry($sql);
+    }
+
+    function getAllCalndars()
+    {
+        $persons = array();
+        $sql = "SELECT * FROM [cal_Calendars];";
+        $resultArray = $this->connection->executequerry($sql);
+
+        foreach ($resultArray as $result)
+        {
+          $persons[] = new PersonModel($result['userName'],$result['userLastName'],$result['userEmail'],$result['calendarID']);
+        }
+        return $persons;
+    }
+}
